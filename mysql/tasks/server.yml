@@ -1,0 +1,38 @@
+    - name: update apt cache
+      action: apt update_cache=yes
+
+    - name: install mysql and dependencies
+      action: apt name=$item state=present
+      with_items:
+        - mysql-server
+        - mysql-client
+        - python-mysqldb
+
+    - name: Start the MySQL service
+      action: service name=mysql state=started
+
+    ## generating a random passoword is a good idea, there's no reason to know what it is without looking
+    ## in the /root/.my.cnf file.
+    - name: generate secure random mysql root password
+      action: shell /usr/bin/pwgen -s 64 1 creates=/root/.my.cnf
+      register: mysql_root_passwd
+
+
+    # 'localhost' needs to be the last item for idempotency, see
+    # http://ansible.cc/docs/modules.html#mysql-user
+    - name: update mysql root password for all root accounts
+      action: mysql_user name=root host=localhost password={{ mysql_root_passwd.stdout }} login_password="" login_user=root
+      when: mysql_root_passwd.skipped is not defined
+
+    - name: copy .my.cnf file with root password credentials
+      action: template src=root.my.cnf.j2 dest=/root/.my.cnf owner=root mode=0600
+      when: mysql_root_passwd.skipped is not defined
+
+      ## I'm not sure there's any point to this. Better off to bind to 0.0.0.0 and control access via firewall or AWS security group.
+      ## We also need to discuss exactly what constitutes a good default set of mysql configuration parameters for production.
+    - name: copy mysql config file to allow remote connections
+      action: template src=mysqld_remote_connection.cnf.j2 dest=/etc/mysql/conf.d/mysqld_remote_connection.cnf owner=root mode=0600      
+
+    - name: remove the test database
+      action: mysql_db name=test state=absent login_password={{ mysql_root_passwd.stdout }} login_user=root
+      when: mysql_root_passwd.skipped is not defined

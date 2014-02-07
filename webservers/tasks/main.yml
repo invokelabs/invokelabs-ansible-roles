@@ -1,0 +1,59 @@
+---
+    - name: Checking that you can't have both apache24 and apache22 configured, or missing.
+      action: command /bin/false
+      when: apache22|bool and apache24|bool or not apache22|bool and not apache24|bool
+
+    - include: apache22.yml
+      when: apache22|bool and not apache24|bool
+
+    - include: apache24.yml
+      when: apache24|bool and not apache22|bool
+
+    - name: create default vhost logs directory
+      action: file path={{ projectroot }}/var/logs state=directory
+
+    - name: copy vhost file template
+      action: template src=vhost.conf dest=/etc/apache2/sites-available/{{ domainname }}.conf
+
+    - name: copy httpd.conf with ServerName
+      action: template src=httpd.conf dest=/etc/apache2/httpd.conf
+
+    - name: configure apache modules
+      action: command /usr/sbin/a2enmod {{ item }}
+      with_items:
+        - actions
+        - rewrite
+        - expires
+        - ssl
+
+    - name: configure virtualhost
+      action: file src=/etc/apache2/sites-available/{{ domainname }}.conf path=/etc/apache2/sites-enabled/{{ domainname }}.conf state=link
+      notify:
+        - restart apache2
+
+    - name: install pygtail
+      action: pip name=pygtail state=present
+
+    - name: copy collector to host
+      action: copy src=apache2_logs.py dest=/usr/share/diamond/collectors/apache2_logs/ mode=0644 owner=root
+
+    - name: copy helper script to host
+      action: copy src=collector_log_updater.py dest=/etc/diamond/collectors/ mode=0755 owner=root
+
+    - name: copy diamond conf
+      action: copy src=collectors_config/Apache2LogsCollector.conf dest=/etc/diamond/collectors/  force=no
+
+    - name: add our existing vhost to the file if it doesn't already exist
+      action: command /etc/diamond/collectors/collector_log_updater.py Apache2LogsCollector.conf {{ projectname }}:{{ projectroot }}/var/logs/access-{{ projectname }}.log chdir=/etc/diamond/collectors
+      notify:
+       - restart diamond
+
+    - name: ensure apache2 starts on boot
+      action: command /usr/sbin/update-rc.d apache2 {{ item }}
+      with_items:
+       - defaults
+       - enable
+
+    - include: php.yml
+      when: php|bool
+

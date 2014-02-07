@@ -1,0 +1,12 @@
+    - name: MySQL Client
+      action: apt name=$item state=installed
+      with_items:
+          - mysql-client
+
+    - name: MySQL PHP Client
+      action: apt name=$item state=installed
+      with_items:
+          - php5-mysql
+      when: php is defined and php|bool is true
+      notify:
+        - restart php5-fpm

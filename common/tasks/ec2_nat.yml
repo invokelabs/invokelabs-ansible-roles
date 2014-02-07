@@ -1,0 +1,10 @@
+
+ - name: Copy natpat.sh to machine
+   action: copy src=natpat.sh dest=/usr/local/sbin/natpat.sh owner=root group=root mode=0700
+
+ - name: Add natpat.sh to rc.local
+   action: copy src=rc.local dest=/etc/rc.local owner=root group=root mode=0755
+
+ - name: start up the natpat
+   action: command /usr/local/sbin/natpat.sh
+   ignore_errors: True

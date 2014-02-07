@@ -1,0 +1,2 @@
+  - name: initialize the replica set
+    action: shell echo 'rs.initiate();' | /usr/bin/mongo

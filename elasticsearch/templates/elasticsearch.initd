@@ -1,0 +1,60 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          elasticsearch-{{ ES_VERSION }}
+# Required-Start:    $all
+# Required-Stop:    $all
+# Default-Start:    2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts elasticsearch-{{ ES_VERSION }}
+# Description:      Starts elasticsearch-{{ ES_VERSION }} using start-stop-daemon
+### END INIT INFO
+ 
+ES_HOME=/home/elasticsearch/elasticsearch-{{ ES_VERSION }}
+export ES_HEAP_SIZE={{ ES_HEAP_SIZE }}
+DAEMON=$ES_HOME/bin/elasticsearch
+NAME=elasticsearch-{{ ES_VERSION }}
+USER=elasticsearch
+DESC=elasticsearch-{{ ES_VERSION }}
+PID_FILE=$ES_HOME/$NAME.pid
+#DATA_DIR=$ES_HOME/var/lib/$NAME
+#WORK_DIR=$ES_HOME/work/$NAME
+CONFIG_FILE=$ES_HOME/config/elasticsearch.yml
+DAEMON_OPTS="-p $PID_FILE"
+ 
+ 
+test -x $DAEMON || exit 0
+ 
+set -e
+ 
+case "$1" in
+  start)
+    echo -n "Starting $DESC: "
+    if start-stop-daemon --start --chuid=$USER --pidfile $PID_FILE --startas $DAEMON -- $DAEMON_OPTS
+    then
+        echo "started."
+    else
+        echo "failed."
+    fi
+    ;;
+  stop)
+    echo -n "Stopping $DESC: "
+    if start-stop-daemon --stop --pidfile $PID_FILE
+    then
+        echo "stopped."
+    else
+        echo "failed."
+    fi
+    ;;
+  restart|force-reload)
+    ${0} stop
+    sleep 2
+    ${0} start
+    ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|force-reload}" >&2
+    exit 1
+    ;;
+esac
+ 
+exit 0

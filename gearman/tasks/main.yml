@@ -1,0 +1,21 @@
+
+    - name: install gearman ppa
+      action: apt_repository repo='deb http://ppa.launchpad.net/gearman-developers/ppa/ubuntu precise main' state=present
+
+    - name: install gearman job server.
+      action: apt name=gearman-job-server state=installed update_cache=yes
+
+    - name: install libgearman library
+      action:  apt name=libgearman7 state=installed
+
+    - name: install libgearman library headers
+      action:  apt name=libgearman-dev state=installed
+
+    - name: configure gearman to run at system start
+      action: command /usr/sbin/update-rc.d gearman-job-server defaults
+
+    - name: configure gearman to run at system start
+      action: command /usr/sbin/update-rc.d gearman-job-server enable
+
+    - name: start gearman job server
+      action: service name=gearman-job-server state=started

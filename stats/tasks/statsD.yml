@@ -1,0 +1,50 @@
+# @see http://stackoverflow.com/questions/7214474/how-to-keep-up-with-the-latest-versions-of-nodejs-in-ubuntu-ppa-compiling
+- name: add nodejs apt repository for latest version
+  action: apt_repository repo=ppa:chris-lea/node.js
+
+- name: install nodejs
+  action: apt name=nodejs state=installed update_cache=true
+
+- name: install statsD
+  action: npm name=statsd state=present global=yes
+
+- name: create statsd user
+  action: user name=statsd shell=/bin/false createhome=yes
+
+- name: copy statsd sample init script to /etc/init.d
+  action: command /bin/cp /usr/lib/node_modules/statsd/debian/statsd.init /etc/init.d/statsd
+
+- name: fix up statsd init script perms
+  action: file path=/etc/init.d/statsd mode=0755
+
+- name: create /etc/statsd
+  action: file dest=/etc/statsd state=directory owner=statsd mode=0755
+
+- name: copy statsd configuration file to /etc/statsd
+  action: template src=localConfig.js dest=/etc/statsd/localConfig.js owner=root mode=0644
+
+- name: create /usr/share/statsd
+  action: file dest=/usr/share/{{ item }} state=directory owner=root mode=0755
+  with_items:
+   - statsd/
+   - statsd/lib
+   - statsd/backends
+   - statsd/scripts
+
+- name: copy statsd.js to /usr/share/statsd
+  action: command /bin/cp /usr/lib/node_modules/statsd/stats.js /usr/share/statsd/
+
+- name: copy lib files to /usr/share/statsd
+  action: shell /bin/cp /usr/lib/node_modules/statsd/lib/*.js /usr/share/statsd/lib/
+
+- name: copy backend files to /usr/share/statsd
+  action: shell /bin/cp /usr/lib/node_modules/statsd/backends/*.js /usr/share/statsd/backends/
+
+- name: set up statsd to run at startup
+  action: command /usr/sbin/update-rc.d statsd defaults
+
+- name: set up statsd to run at startup
+  action: command /usr/sbin/update-rc.d statsd enable
+
+- name: start statsd
+  action: service name=statsd state=restarted

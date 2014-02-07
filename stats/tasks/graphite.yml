@@ -1,0 +1,65 @@
+
+- name: install uwsgi dependency (zeromq)
+  action: apt_repository repo=ppa:chris-lea/zeromq state=present
+
+- name: install pip
+  action: apt name=python-pip state=present update_cache=yes
+
+- name: install graphite dependencies
+  action: apt name={{ item }} state=present
+  with_items:
+   - python-dev
+   - python-cairo-dev
+   - uwsgi
+   - uwsgi-plugin-python
+
+- name: install graphite
+  action: pip name={{ item }} state=present
+  with_items:
+   - twisted==11.1.0
+   - carbon
+   - whisper
+   - django==1.5.5
+   - django-tagging
+   - graphite-web
+
+- name: set up uwsgi app runner for web front end
+  action: file src=/opt/graphite/conf/graphite.wsgi.example dest=/opt/graphite/webapp/graphite/wsgi.py state=link
+
+- name: configure uwsgi process
+  action: template src=uwsgi.ini dest=/etc/uwsgi/apps-available/graphite-web.ini
+
+- name: configure uwsgi process symlink
+  action: file src=/etc/uwsgi/apps-available/graphite-web.ini dest=/etc/uwsgi/apps-enabled/graphite-web.ini state=link
+
+- name: ensure file permissions are correct for graphite-web
+  action: file path=/opt/graphite/storage owner=www-data recurse=yes state=directory
+
+- name: copy local settings default template
+  action: template src=graphite_local_settings.py dest=/opt/graphite/webapp/graphite/local_settings.py owner=root mode=0644
+
+- name: run django syncdb
+  action: command /usr/bin/sudo -u www-data /usr/bin/env python manage.py syncdb --noinput chdir=/opt/graphite/webapp/graphite
+
+- name: start uwsgi
+  action: service name=uwsgi state=restarted
+
+- name: copy carbon configuration files
+  action: template src={{ item }}.conf dest=/opt/graphite/conf/{{ item }}.conf owner=root mode=0644
+  with_items:
+   - carbon
+   - storage-schemas
+
+- name: copy carbon init.d script
+  action: copy src=carbon-cache.initd  dest=/etc/init.d/carbon-cache mode=0755
+
+- name: enable carbon init.d script
+  action: command /usr/sbin/update-rc.d carbon-cache {{ item }}
+  with_items:
+   - defaults
+   - enable
+  notify:
+   - restart carbon-cache.py
+
+- name: restart apache2
+  action: service name=apache2 state=restarted

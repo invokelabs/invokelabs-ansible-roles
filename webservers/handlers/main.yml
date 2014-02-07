@@ -1,0 +1,8 @@
+ - name: restart apache2
+   action: service name=apache2 state=restarted
+
+ - name: restart php5-fpm
+   action: service name={{ projectname }} state=restarted
+
+ - name: restart diamond
+   action: service name=diamond state=restarted

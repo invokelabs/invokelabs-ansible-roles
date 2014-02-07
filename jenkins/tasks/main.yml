@@ -1,0 +1,52 @@
+
+ - include_vars: osx.yml
+   when: ansible_os_family == "Darwin"
+
+ - include: osx.yml
+   when: ansible_os_family == "Darwin"
+
+ - name: fix up paths and permissions
+   action: file path={{ jenkins_home }}/{{ item }} state=directory owner={{ jenkins_user }} group={{ jenkins_user }} mode=0700
+   with_items:
+    - users
+    - users/{{ jenkins_default_username }}
+   sudo: true
+
+ - name: copy default jenkins user config
+   action: template src=default_jenkins_user.config.xml dest={{ jenkins_home }}/users/{{ jenkins_default_username }}/config.xml owner={{ jenkins_user }} group={{ jenkins_user }} mode=0600
+   sudo: true
+
+ - name: copy default jenkins system config
+   action: template src=default_jenkins.config.xml dest={{ jenkins_home }}/config.xml owner={{ jenkins_user }} group={{ jenkins_user }} mode=0600
+   sudo: true
+
+  # this could use some improvement
+  # not sure how to create os_family specific handlers yet.
+ - name: restart jenkins
+   action: command /bin/launchctl stop org.jenkins-ci
+   sudo: true
+   when: ansible_os_family == "Darwin"
+
+ - name: the ugly sleep
+   action: command sleep 20
+   when: ansible_os_family == "Darwin"
+
+ - name: create updates directory
+   action: file path={{ jenkins_home }}/updates state=directory owner={{ jenkins_user }} group={{ jenkins_user }} mode=0700
+   sudo: true
+
+ - name: get the latest update list for plugins
+   action: shell curl  -L http://updates.jenkins-ci.org/update-center.json | sed '1d;$d' > {{ jenkins_home }}/updates/default.json creates={{ jenkins_home }}/updates/default.json
+   sudo: true
+
+ - name: fix perms for update list
+   action: file path={{ jenkins_home }}/updates/default.json owner={{ jenkins_user }} group={{ jenkins_user }} mode=0600
+   sudo: true
+
+ - include: plugins.yml
+   when: jenkins_enable_plugins|bool
+
+ - name: restart jenkins
+   action: command /bin/launchctl stop org.jenkins-ci
+   sudo: true
+   when: ansible_os_family == "Darwin"

@@ -1,0 +1,42 @@
+ 
+- name: install config files
+  action: template src=50-default.conf dest=/etc/rsyslog.d/50-default.conf
+
+- name: install config files
+  action: template src=rsyslog.conf dest=/etc/rsyslog.conf
+
+- name: restart rsyslog
+  action: service name=rsyslog state=restarted
+
+- name: create logstash user
+  action: user name=logstash shell=/bin/bash groups=syslog
+
+- name: copy logstash tarball
+  action: copy src=logstash-1.2.2-flatjar.jar dest=/home/logstash/ owner=logstash group=logstash
+
+- name: install java
+  action: apt name=openjdk-6-jre-headless
+
+- name: install kibana
+  action: unarchive src=kibana-3.0.0milestone4.tar.gz dest=/home/logstash/kibana/ owner=logstash group=logstash
+
+- name: copy kibana config file to server
+  action: copy src=config.js dest=/home/logstash/kibana/kibana-3.0.0milestone4/config.js owner=logstash group=logstash
+
+- name: copy logstash config file to server
+  action: copy src=logstash.conf dest=/home/logstash/logstash.conf owner=logstash group=logstash
+
+- name: create htpasswd file
+  action: file path=/home/logstash/kibana/.htpasswd state=touch
+
+- name: fix up wonky perms, not sure why they are wonky
+  action: file path=/home/logstash owner=logstash group=logstash
+
+- name: copy logstash upstart job to server
+  action: template src=logstash.upstart dest=/etc/init/logstash.conf owner=root group=root mode=0644
+
+- name: start logstash
+  action: service name=logstash state=started
+
+- name: restart rsyslog again
+  action: service name=rsyslog state=restarted

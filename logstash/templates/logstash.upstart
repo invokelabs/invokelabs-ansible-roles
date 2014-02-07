@@ -1,0 +1,24 @@
+# logstash.conf
+# logstash instance
+# {{ ansible_managed }}
+
+description     "logstash"
+
+start on virtual-filesystems
+stop on runlevel [06]
+
+respawn
+respawn limit 5 30
+limit nofile 65550 65550
+
+env HOME=/home/logstash
+env JAVA_OPTS='-Xms{{ LS_HEAP_SIZE }} -Xmx{{ LS_HEAP_SIZE }}'
+
+chdir /home/logstash
+setuid logstash
+setgid syslog
+console log
+
+script
+        exec java -jar logstash-1.2.2-flatjar.jar agent -f /home/logstash/logstash.conf --log /home/logstash/logstash.log
+end script

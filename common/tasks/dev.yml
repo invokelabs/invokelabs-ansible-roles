@@ -1,0 +1,8 @@
+    - name: install common packages
+      apt: name={{ item }} state=installed
+      with_items:
+        - build-essential
+        - libpcre3-dev
+        - wget
+        - zip
+        - postfix

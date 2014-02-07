@@ -1,0 +1,33 @@
+---
+    - name: force the ubuntu to get a new set of apt list metadata doodads, since in _rare_ occasions this can cause breakage
+      action: command /bin/rm -rf /var/lib/apt/lists/* creates=/root/.apt-cleaned
+
+    - name: install common apps
+      action: apt name={{ item }} state=installed update_cache=yes
+      with_items:
+        - python-software-properties
+        - python-pip
+        - make
+        - git
+        - ntp
+        - curl
+        - monit
+        - pwgen
+        - python-keyczar
+        - rsyslog
+
+    - name: ensure ntpd runs on startup
+      action: command /usr/sbin/update-rc.d ntp enable
+
+    - name: ensure monit starts on boot
+      action: command /usr/sbin/update-rc.d monit enable
+
+    - include: dev.yml
+      when: isproduction is defined and not isproduction|bool
+
+    - include: diamond.yml
+
+    - include: rsyslog.yml
+
+    - include: ec2_nat.yml
+      when: ec2_nat|bool

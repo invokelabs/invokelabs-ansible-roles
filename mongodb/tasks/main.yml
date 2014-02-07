@@ -1,0 +1,40 @@
+
+
+  - name: remove old version of mongo
+    action: apt name=mongodb state=absent
+
+  - name: remove old version of mongo-client
+    action: apt name=mongodb-clients state=absent
+
+  - name: install 10gen key
+    action: apt_key id=7F0CEB10 url="http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9ECBEC467F0CEB10" state=present
+
+  - name: install 10gen repo
+    action: apt_repository repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen'
+
+  - name: deal with stupid apt_repository bug
+    action: command /bin/sed -r -i s/"^deb-src.*dist 10gen$"// /etc/apt/sources.list
+
+  - name: deal with ANOTHER stupid apt_repository bug
+    action: command /bin/sed -r -i s/"^(deb.*) (precise)( dist 10gen)$"/"\\1\\3"/ /etc/apt/sources.list
+
+  - name: install 10gen mongodb
+    action: apt name=mongodb-10gen state=installed update_cache=yes
+
+  - name: install mongodb config file # for now this will set up a replica set rs0 with a single member. it's hardcoded!
+    action: template src=mongod.conf dest=/etc/mongodb.conf
+
+  - name: start mongodb
+    action: command /usr/bin/service mongodb restart
+
+  - name: wait for mongo to start
+    action: command sleep 60
+
+  - include: replicaset.yml
+    when: replicaset is defined
+
+  - name: configure mongodb to run at system start
+    action: command /usr/sbin/update-rc.d mongodb {{ item }}
+    with_items:
+     - defaults
+     - enable

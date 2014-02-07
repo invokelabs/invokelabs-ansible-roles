@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors/>
+  <version>1.0</version>
+  <numExecutors>2</numExecutors>
+  <mode>NORMAL</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.ProjectMatrixAuthorizationStrategy">
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Create:{{ jenkins_default_username }}</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Delete:{{ jenkins_default_username }}</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains:{{ jenkins_default_username }}</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.Update:{{ jenkins_default_username }}</permission>
+    <permission>com.cloudbees.plugins.credentials.CredentialsProvider.View:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Computer.Build:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Computer.Configure:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Computer.Connect:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Computer.Create:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Computer.Delete:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Computer.Disconnect:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Hudson.Administer:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Hudson.ConfigureUpdateCenter:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Hudson.Read:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Hudson.RunScripts:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Hudson.UploadPlugins:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Build:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Cancel:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Configure:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Create:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Delete:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Discover:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Read:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.Item.Workspace:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.View.Configure:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.View.Create:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.View.Delete:{{ jenkins_default_username }}</permission>
+    <permission>hudson.model.View.Read:{{ jenkins_default_username }}</permission>
+  </authorizationStrategy>
+  <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
+    <disableSignup>true</disableSignup>
+    <enableCaptcha>false</enableCaptcha>
+  </securityRealm>
+  <disableRememberMe>false</disableRememberMe>
+  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+  <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULLNAME}</workspaceDir>
+  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+  <markupFormatter class="hudson.markup.RawHtmlMarkupFormatter">
+    <disableSyntaxHighlighting>false</disableSyntaxHighlighting>
+  </markupFormatter>
+  <jdks/>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds/>
+  <slaves/>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+  </views>
+  <primaryView>All</primaryView>
+  <slaveAgentPort>0</slaveAgentPort>
+  <label></label>
+  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+    <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
+  </crumbIssuer>
+  <nodeProperties/>
+  <globalNodeProperties/>
+</hudson>

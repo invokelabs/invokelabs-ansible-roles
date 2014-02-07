@@ -1,0 +1,9 @@
+
+  - name: restart jenkins
+    action: command /bin/launchctl stop /Library/LaunchDaemons/org.jenkins-ci.plist
+    sudo: true
+
+  # - name: start jenkins
+  #   action: command /bin/launchctl load /System/Library/LaunchDaemons/org.postfix.master.plist
+  #   sudo: true
+

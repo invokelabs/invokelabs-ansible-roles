@@ -1,0 +1,5 @@
+ - name: restart monit
+   action: service name=monit state=restarted
+
+ - name: restart ntp
+   action: service name=ntp state=restarted

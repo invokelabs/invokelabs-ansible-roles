@@ -1,0 +1,5 @@
+jenkins_home: /Users/Shared/Jenkins/Home
+jenkins_enable_plugins: true
+jenkins_enable_testflight: true
+jenkins_enable_xcode: true
+jenkins_enable_cocoapods: true

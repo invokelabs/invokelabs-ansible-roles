@@ -1,0 +1,20 @@
+---
+dependencies:
+    - {
+        role: ../../lib/roles/elasticsearch,
+        ES_CLUSTER_NAME: logstash-es-cluster,
+        ES_HEAP_SIZE: 512m
+    }
+    - {
+        role: ../../lib/roles/webservers,
+        php: false,
+        uwsgi: false,
+        projectname: kibana,
+        updatecode: false,
+        cleardatabase: false,
+        apache24: true,
+        apache22: false,
+        projectroot: /home/logstash/kibana/kibana-3.0.0milestone4,
+        projectdocroot: /home/logstash/kibana/kibana-3.0.0milestone4,
+        additional_vhost_config: "<Location />\nAuthType Basic\nAuthName \"Kibana Authentication Required\"\nAuthUserFile \"/home/logstash/kibana/.htpasswd\"\nRequire valid-user\n</Location>\n\nProxyPass  /elastic  http://localhost:9200\nProxyPassReverse /elastic http://localhost:9200\n\n"
+    }

@@ -1,0 +1,10 @@
+---
+
+    - name: install python-dev
+      action: apt name=python-dev state=installed
+
+    - name: install pip
+      action: apt name=python-pip state=installed
+
+    - name: install mongo-connector
+      action: pip name=mongo-connector

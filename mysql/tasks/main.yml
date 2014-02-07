@@ -1,0 +1,6 @@
+
+ - include: server.yml
+   when: mysql_server is defined and mysql_server|bool
+
+ - include: client.yml
+   when: mysql_client is defined and mysql_client|bool

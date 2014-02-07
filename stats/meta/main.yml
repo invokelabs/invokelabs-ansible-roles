@@ -1,0 +1,14 @@
+dependencies:
+    - {
+        role: ../../lib/roles/webservers,
+        when: stats_backend|bool,
+        php: false,
+        projectname: graphite,
+        updatecode: false,
+        cleardatabase: false,
+        apache24: true,
+        apache22: false,
+        projectroot: /opt/graphite,
+        projectdocroot: /opt/graphite/webapp/content,
+        uwsgi: true,
+    }

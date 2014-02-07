@@ -1,0 +1,30 @@
+    - name: install xdebug
+      action: apt name=php5-xdebug state=installed
+
+    - name: install xdebug config for remote debugging
+      action: template src=xdebug.ini dest=/etc/php5/mods-available/xdebug.ini
+      when: php55 is defined and php55|bool
+      notify:
+        - restart php5-fpm
+
+    - name: install php5-dev package
+      action: apt name=php5-dev state=installed
+      when: php55 is defined and php55|bool
+
+    - name: install xdebug config for remote debugging
+      action: command /usr/sbin/php5enmod xdebug
+      when: php55 is defined and php55|bool
+      notify:
+        - restart php5-fpm
+
+    - name: install xdebug config for remote debugging
+      action: template src=xdebug.ini dest=/etc/php5/conf.d/xdebug.ini
+      when: php53 is defined and php53|bool
+      notify:
+        - restart php5-fpm
+
+    - name: configure pear to install phpunit
+      action: command pear config-set auto_discover 1
+
+    - name: install phpunit for unit testing
+      action: command pear install pear.phpunit.de/PHPUnit creates=/usr/share/php/PHPUnit/Autoload.php

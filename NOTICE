@@ -1,0 +1,16 @@
+Invoke Labs Ansible Roles
+Copyright 2014 Invoke Labs
+
+Elasticsearch/Logstash/Kibana:
+This product includes software developed at Elasticsearch BV (http://www.elasticsearch.org)
+
+httpd-stat:
+This product includes software developed at Gossamer Threads Inc (http://www.gossamer-threads.com/)
+ 
+Diamond:
+This product includes software developed at Brightcove Inc (http://www.brightcove.com/):
+Copyright (C) 2010-2012 by Brightcove Inc.      http://www.brightcove.com/
+Copyright (C) 2011-2012 by Ivan Pouzyrevsky
+Copyright (C) 2011-2012 by Rob Smith            http://www.kormoc.com
+Copyright (C) 2012 Wijnand Modderman-Lenstra    https://maze.io/
+Copyright (C) 2012 Dennis Kaarsemaker           <dennis@kaarsemaker.net>

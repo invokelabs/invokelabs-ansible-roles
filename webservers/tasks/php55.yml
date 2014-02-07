@@ -1,0 +1,33 @@
+    - name: install Ondrej's php5 repo
+      action: apt_repository repo=ppa:ondrej/php5 state=present
+
+    - name: update apt cache
+      action: apt update_cache=yes
+
+    - name: install php
+      action: apt name={{ item }} state=installed
+      with_items:
+          - php5-common 
+          - php5-fpm
+          - php5-apcu
+          - php-pear
+          - php5-curl
+          - php5-intl
+
+    - name: remove php5-fpm default pool
+      action: file path=/etc/php5/fpm/pool.d/www.conf.dpkg-new state=absent
+      notify:
+        - restart php5-fpm
+
+    - name: remove php5-fpm default pool
+      action: file path=/etc/php5/fpm/pool.d/www.conf state=absent
+      notify:
+        - restart php5-fpm
+
+    - name: set timezone
+      action: template src=tz.ini dest=/etc/php5/mods-available/tz.ini owner=root group=root mode=0644
+      notify:
+        - restart php5-fpm
+
+    - name: configure timezone ini
+      action: command /usr/sbin/php5enmod tz

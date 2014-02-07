@@ -1,0 +1,4 @@
+mysql_bind_address: 127.0.0.1
+php: false
+mysql_client: true
+mysql_server: false

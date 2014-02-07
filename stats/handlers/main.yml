@@ -1,0 +1,2 @@
+- name: restart carbon-cache.py
+  action: service name=carbon-cache state=restarted

@@ -1,0 +1,8 @@
+ - name: install config files
+   action: template src=50-default.conf dest=/etc/rsyslog.d/50-default.conf
+
+ - name: install config files
+   action: template src=rsyslog.conf dest=/etc/rsyslog.conf
+
+ - name: restart rsyslog
+   action: service name=rsyslog state=restarted

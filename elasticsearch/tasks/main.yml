@@ -1,0 +1,38 @@
+---
+
+###
+# todo a couple of things:
+# 1. create a non-versioned symlink and run all commands out of the symlink.
+# 2. increase the number of allowed open file descriptors.
+
+    - name: create elasticsearch user
+      action: user name=elasticsearch shell=/bin/bash
+
+    - name: copy elasticsearch tarball
+      action: copy src=elasticsearch-{{ ES_VERSION }}.tar.gz dest=/home/elasticsearch/elasticsearch-{{ ES_VERSION }}.tar.gz owner=elasticsearch group=elasticsearch
+
+    - name: install java
+      action: apt name=openjdk-6-jre-headless
+
+    - name: unpack elasticsearch tarball
+      action: command /bin/su elasticsearch -c "/bin/tar xvzf elasticsearch-{{ ES_VERSION }}.tar.gz" chdir=/home/elasticsearch creates=/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/
+
+    - name: install elasticsearch config file
+      action: template src=elasticsearch.yml.conf dest=/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/config/elasticsearch.yml
+
+    - name: install elasticsearch init.d script
+      action: template src=elasticsearch.initd dest=/etc/init.d/elasticsearch-{{ ES_VERSION }} mode=0755
+
+    - name: configure elasticsearch to run at system start
+      action: command /usr/sbin/update-rc.d elasticsearch-{{ ES_VERSION }} {{ item }}
+      with_items:
+        - enable
+        - defaults
+
+    - name: start elastic search in the background
+      action: service name=elasticsearch-{{ ES_VERSION }} state=started
+
+    # deprecated for now. The latest version of elasticsearch has suggestions built in, need more research to ensure that this is useful over and above what is there by default.
+    # - name: install spinscale suggest plugin
+    #   action: command /bin/su - elasticsearch -c "/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/bin/plugin -install de.spinscale/elasticsearch-plugin-suggest/0.90.7-1.0 -verbose" creates=/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/plugins/plugin-suggest/elasticsearch-plugin-suggest-0.90.7-1.0.jar
+    #   when: ES_SUGGEST_PLUGIN is defined and ES_SUGGEST_PLUGIN|bool is true and ES_VERSION|string == "0.90.7"

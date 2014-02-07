@@ -1,0 +1,39 @@
+jenkins_home: /home/jenkins
+jenkins_user: jenkins
+jenkins_enable_plugins: false
+jenkins_enable_testflight: false
+jenkins_enable_xcode: false
+jenkins_enable_cocoapods: false
+jenkins_cli_path: files/jenkins-cli.jar
+
+# uncomment and define these if you would like to use a relay host and install mail services
+jenkins_use_mail_relay_host: false
+#jenkins_mail_relay_host:
+#jenkins_mail_relay_smtp_username:
+#jenkins_mail_relay_host_smtp_password:
+
+jenkins_default_user_full_name: Default Jenkins User
+jenkins_default_username: default_jenkins
+jenkins_default_user_api_token: 
+jenkins_default_user_email_address: 
+# this is the path on the local master host where the private key pair is located
+jenkins_default_user_private_key: 
+# if you change the above, you'd better change this too.
+jenkins_default_user_public_key:
+
+## You'll probably want to put something in here, as well as the hash  in the config file.
+jenkins_default_user_password:
+
+jenkins_host_name: localhost
+jenkins_host_port: 8080
+
+# the next two variables should be changed in tandem
+jenkins_use_https: true
+jenkins_protocol: https
+
+jenkins_use_self_signed_certificate: true
+# if you choose to not use a self-signed certificate
+# uncomment the below and make sure to set jenkins_use_self_signed_certificate to false.
+# this should point to the path _on your local machine_ where the key and certificate originate.
+#jenkins_certificate_path:
+#jenkins_certificate_key_path:

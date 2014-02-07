@@ -1,0 +1,6 @@
+relayhost = {{ jenkins_mail_relay_host }}
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous, noplaintext
+smtp_sasl_tls_security_options = noanonymous
+smtp_tls_security_level = encrypt

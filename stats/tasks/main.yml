@@ -1,0 +1,10 @@
+
+ - name: verify configuration
+   action: command /bin/false
+   when: not stats_frontend|bool and not stats_backend|bool
+
+ - include: statsD.yml
+   when: stats_backend|bool
+
+ - include: graphite.yml
+   when: stats_backend|bool

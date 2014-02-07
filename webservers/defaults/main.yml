@@ -1,0 +1,19 @@
+---
+maxclients: 64
+fastcgiport: 8000
+timezone: "UTC"
+apache22: true
+apache24: false
+php: false
+php55: false
+php53: true
+php_frontcontroller: "index.php"
+isproduction: false
+domainname: "example.server"
+projectroot: "/var/www/vhosts/example"
+projectdocroot: "/var/www/vhosts/example/docroot"
+projectname: "example"
+updatecode: false
+cleardatabase: false
+hostip: "127.0.0.1"
+uwsgi: false

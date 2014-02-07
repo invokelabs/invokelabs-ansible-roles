@@ -1,0 +1,18 @@
+
+  - name: enable and configure mail service (OS X SERVER)
+    action: command /Applications/Server.app/Contents/ServerRoot/usr/sbin/serveradmin start mail
+    sudo: true
+
+  - name: enable and configure mail service
+    action: command /Applications/Server.app/Contents/ServerRoot/usr/sbin/serveradmin {{ item }}
+    sudo: true
+    when: jenkins_mail_relay_host is defined and jenkins_mail_relay_host|length > 0
+    with_items:
+      - start mail
+      - settings mail:postfix:relayhost_enabled = yes
+      - settings mail:postfix:relayhost = "{{ jenkins_mail_relay_host }}"
+      - settings mail:postfix:smtp_auth_relay_dict:smtp_auth_relay_host = "{{ jenkins_mail_relay_host }}"
+      - settings mail:postfix:smtp_auth_relay_dict:smtp_auth_relay_userid = "{{ jenkins_mail_relay_smtp_username }}"
+      - settings mail:postfix:smtp_auth_relay_dict:smtp_auth_relay_pwd = "{{ jenkins_mail_relay_host_smtp_password }}"
+
+

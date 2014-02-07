@@ -1,0 +1,4 @@
+stats_frontend: true
+stats_backend: false
+uwsgi_port: 8001
+graphite_web_secret:

@@ -1,0 +1,9 @@
+    
+    # deprecated. Any particular system that requires the use of elasticsearch and mongodb together
+    # is better off inserting data via the http api imho.
+
+    - name: install mongodb river dependency
+      action: command /bin/su - elasticsearch -c "/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/bin/plugin -install elasticsearch/elasticsearch-mapper-attachments/1.7.0 -verbose" creates=/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/plugins/mapper-attachments/elasticsearch-mapper-attachments-1.7.0.jar
+
+    - name: install mongodb river
+      action: command /bin/su - elasticsearch -c "/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/bin/plugin -url https://github.com/downloads/richardwilly98/elasticsearch-river-mongodb/elasticsearch-river-mongodb-1.6.5.zip -install river-mongodb" creates=/home/elasticsearch/elasticsearch-{{ ES_VERSION }}/plugins/river-mongodb/elasticsearch-river-mongodb-1.6.5.jar

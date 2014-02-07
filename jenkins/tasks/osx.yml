@@ -1,0 +1,67 @@
+
+  - name: copy jenkins package file to remote host
+    action: copy src=jenkins-1.546.pkg dest=/Users/Shared/jenkins-1.546.pkg
+
+  - name: check if java is installed
+    action: command /usr/libexec/java_home
+    ignore_errors: true
+    register: has_java
+
+    ## As of January 9 2014 this is Java for OS X 2013-005 from
+    ## http://support.apple.com/kb/DL1572
+    ## If you update this file, please update this comment.
+    ## This has to be done this way since there's no other known way to
+    ## install java without GUI interaction.
+  - name: copy java installer to remote host
+    action: copy src=JavaForOSX.pkg dest=/Users/Shared/JavaForOSX.pkg
+    when: has_java.rc != 0
+
+  - name: install latest java
+    action: command /usr/sbin/installer -pkg /Users/Shared/JavaForOSX.pkg -target /
+    sudo: true
+    when: has_java.rc != 0
+
+  - name: check if command line tools are installed
+    action: shell /usr/sbin/pkgutil --packages | grep -qi com\.apple\.pkg\.CLTools_Executables
+    ignore_errors: true
+    register: has_cli_tools
+
+  - name: copy xcode command line tools to server
+    action: copy src=command_line_tools_os_x_mavericks_for_xcode__late_october_2013.dmg dest=/Users/Shared
+    when: has_cli_tools.rc != 0
+
+  - name: mount xcode command line tools
+    action: command /usr/bin/hdiutil mount /Users/Shared/command_line_tools_os_x_mavericks_for_xcode__late_october_2013.dmg
+    when: has_cli_tools.rc != 0
+
+  - name: install xcode command line tools
+    action: command /usr/sbin/installer -pkg /Volumes/Command\ Line\ Developer\ Tools/Command\ Line\ Tools\ \(OS\ X\ 10.9\).pkg -target /
+    sudo: true
+    when: has_cli_tools.rc != 0
+
+  - name: determine if OS X Server.app is installed
+    action: command  stat /Applications/Server.app/Contents/ServerRoot/usr/sbin/serveradmin
+    ignore_errors: true
+    register: is_server
+
+  - include: osx_enable_client_mail.yml
+    when: is_server.rc == 1
+
+  - include: osx_enable_server_mail.yml
+    when: is_server.rc == 0
+
+  - name: check if jenkins is installed
+    action: shell /usr/sbin/pkgutil --packages | grep -qi org.jenkins-ci.jenkins.osx.pkg
+    ignore_errors: true
+    register: has_jenkins
+
+  - name: install jenkins package
+    action: command /usr/sbin/installer -pkg /Users/Shared/jenkins-1.546.pkg -target /
+    sudo: true 
+    when: has_jenkins.rc != 0
+
+  - name: copy the jenkins CLI to server
+    action: copy src=jenkins-cli.jar dest=/Users/Shared/jenkins-cli.jar
+
+  - include: ssl_osx.yml
+    when: jenkins_use_https|bool

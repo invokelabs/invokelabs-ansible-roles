@@ -1,0 +1,68 @@
+    
+    - name: Checking that you can't have both php55 and php53 configured, or missing.
+      action: command /bin/false
+      when: php53|bool and php55|bool or not php53|bool and not php55|bool
+
+    - include: php53.yml
+      when: php53 is defined and php53|bool
+
+    - include: php55.yml
+      when: php55 is defined and php55|bool
+
+    - name: configure {{ projectname }} project daemon
+      action: template src=php5-fpm.conf dest=/etc/php5/fpm/{{ projectname }}.conf
+      notify:
+        - restart php5-fpm
+
+    - name: configure {{ projectname }} project pool
+      action: template src=fpm-pool.ini dest=/etc/php5/fpm/pool.d/{{ projectname }}.conf
+      notify:
+        - restart php5-fpm
+
+    - name: install pygtail
+      action: pip name=pygtail state=present
+
+    - name: copy collector to host
+      action: copy src=php_fpm_logs.py dest=/usr/share/diamond/collectors/php_fpm_logs/ mode=0644 owner=root
+
+    - name: copy diamond conf
+      action: copy src=collectors_config/PhpFpmLogsCollector.conf dest=/etc/diamond/collectors/  force=no
+
+    - name: copy helper script to host
+      action: copy src=collector_log_updater.py dest=/etc/diamond/collectors/ mode=0755 owner=root
+
+    - name: add our existing vhost to the file if it doesn't already exist
+      action: command /etc/diamond/collectors/collector_log_updater.py PhpFpmLogsCollector.conf {{ projectname }}:{{ projectroot }}/var/logs/{{ projectname }}.access.log chdir=/etc/diamond/collectors
+      notify:
+       - restart diamond
+
+    - name: copy php-fpm init script to /etc/init.d
+      action: template src=php5-fpm.initd dest=/etc/init.d/{{ projectname }} mode=755
+      notify:
+        - restart php5-fpm
+
+    - name: test to see if default fpm init script exists
+      action: shell test -f /etc/init.d/php5-fpm
+      ignore_errors: true
+      register: init_exists
+
+    - name: ensure default fpm stops on boot
+      action: command /usr/sbin/update-rc.d php5-fpm disable
+      when: init_exists|success
+
+    - name: ensure that php-fpm original process pool is stopped
+      action: service name=php5-fpm state=stopped
+      when: init_exists|success
+
+    - name: remove php5-fpm startup script
+      action: file path=/etc/init.d/php5-fpm state=absent
+      when: init_exists|success
+
+    - name: ensure {{ projectname }} project starts on boot
+      action: command /usr/sbin/update-rc.d {{ projectname }} {{ item }}
+      with_items:
+       - defaults
+       - enable
+
+    - include: dev.yml
+      when: not isproduction|bool

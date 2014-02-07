@@ -1,0 +1,15 @@
+
+   - name: install testflight jenkins plugin
+     local_action: command /usr/bin/java -jar {{ jenkins_cli_path }} -noCertificateCheck -i {{ jenkins_default_user_private_key }} -s {{ jenkins_protocol }}://{{ jenkins_host_name }}:{{ jenkins_host_port }}/ install-plugin testflight
+     connection: local
+     when: jenkins_enable_testflight|bool
+
+   - name: install testflight cocoapods plugin
+     local_action: command /usr/bin/java -jar {{ jenkins_cli_path }} -noCertificateCheck -i {{ jenkins_default_user_private_key }} -s {{ jenkins_protocol }}://{{ jenkins_host_name }}:{{ jenkins_host_port }}/ install-plugin cocoapods-integration
+     connection: local
+     when: jenkins_enable_cocoapods|bool
+
+   - name: install testflight xcode plugin
+     local_action: command /usr/bin/java -jar {{ jenkins_cli_path }} -noCertificateCheck -i {{ jenkins_default_user_private_key }} -s {{ jenkins_protocol }}://{{ jenkins_host_name }}:{{ jenkins_host_port }}/ install-plugin xcode-plugin
+     connection: local
+     when: jenkins_enable_xcode|bool

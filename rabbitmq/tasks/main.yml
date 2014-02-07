@@ -1,0 +1,24 @@
+---
+    - name: install rabbitmq apt key
+      action: apt_key url=http://www.rabbitmq.com/rabbitmq-signing-key-public.asc state=present
+
+    - name: install rabbitmq ppa
+      action: apt_repository repo='deb http://www.rabbitmq.com/debian/ testing main' state=present
+
+    - name: install rabbitmq server.
+      action: apt name=rabbitmq-server state=installed update_cache=yes
+
+    - name: install librabbbitmq library
+      action:  apt name={{ item }} state=installed
+      with_items:
+        - librabbitmq0
+        - librabbitmq-dev
+
+    - name: configure rabbitmq-server to run at system start
+      action: command /usr/sbin/update-rc.d rabbitmq-server {{ item }}
+      with_items:
+       - defaults
+       - enable
+
+    - name: start rabbitmq job server
+      action: service name=rabbitmq-server state=started

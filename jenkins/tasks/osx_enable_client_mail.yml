@@ -1,0 +1,32 @@
+
+  - name: enable and configure mail service (OS X CLIENT)
+    action: template src=org.postfix.master.plist.mavericks.client dest=/System/Library/LaunchDaemons/org.postfix.master.plist
+    sudo: true
+
+  - name: install sasl password template
+    action: template src=sasl_passwd.template dest=/etc/postfix/sasl_passwd owner=root group=wheel mode=0600
+    sudo: true
+    when: jenkins_mail_relay_host is defined and jenkins_mail_relay_host|length > 0
+
+  - name: copy main.cf fragment
+    action: template src=fragment.main.cf dest=/etc/postfix/fragment.main.cf owner=root group=wheel mode=0644
+    sudo: true
+    when: jenkins_mail_relay_host is defined and jenkins_mail_relay_host|length > 0
+
+  - name: assemble main.cf for postfix
+    action: assemble backup=yes src=/etc/postfix regexp="main.cf$" dest=/etc/postfix/main.cf owner=root group=wheel mode=0644
+    sudo: true
+    when: jenkins_mail_relay_host is defined and jenkins_mail_relay_host|length > 0
+
+  - name: run postmap
+    action: command /usr/sbin/postmap hash:/etc/postfix/sasl_passwd
+    sudo: true
+    when: jenkins_mail_relay_host is defined and jenkins_mail_relay_host|length > 0
+
+  - name: stop postfix
+    action: command /bin/launchctl unload /System/Library/LaunchDaemons/org.postfix.master.plist
+    sudo: true
+
+  - name: start postfix
+    action: command /bin/launchctl load /System/Library/LaunchDaemons/org.postfix.master.plist
+    sudo: true

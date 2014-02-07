@@ -1,0 +1,14 @@
+    - name: install multiverse
+      action: apt_repository repo='deb http://us.archive.ubuntu.com/ubuntu/ precise multiverse' state=present
+
+    - name: install multiverse-updates
+      action: apt_repository repo='deb http://us.archive.ubuntu.com/ubuntu/ precise-updates multiverse' state=present
+      
+    - name: install event mpm
+      action: apt name=apache2-mpm-event state=installed update_cache=yes
+
+    - name: install mod_fastcgi
+      action: apt name=libapache2-mod-fastcgi state=installed update_cache=yes
+
+    - name: remove default vhost
+      action: file path=/etc/apache2/sites-enabled/000-default state=absent

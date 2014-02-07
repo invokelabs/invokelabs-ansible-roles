@@ -1,0 +1,35 @@
+
+  - name: generate self-signed certificate
+    action: command /usr/bin/openssl req -x509 -newkey rsa:4096 -subj '/C=CA/ST=British Columbia/L=Vancouver/CN={{ jenkins_host_name }}' -keyout {{ jenkins_home }}/jenkins_https.key -out {{ jenkins_home }}/jenkins_https.crt -days 2650 -nodes creates={{ jenkins_home }}/jenkins_https.crt
+    sudo: true
+    when: jenkins_use_self_signed_certificate|bool
+
+  - name: copy existing certificate to server
+    action: copy src={{ jenkins_certificate_path }} dest={{ jenkins_home }}/jenkins_https.crt
+    when: not jenkins_use_self_signed_certificate|bool
+    sudo: true
+
+  - name: copy existing key to server
+    action: copy src={{ jenkins_certificate_key_path }} dest={{ jenkins_home }}/jenkins_https.key
+    when: not jenkins_use_self_signed_certificate|bool
+    sudo: true
+
+  - name: ensure correct file perms for key files
+    action: file path={{ item }} owner=jenkins group=jenkins mode=0600
+    with_items:
+     - "{{ jenkins_home }}/jenkins_https.crt"
+     - "{{ jenkins_home }}/jenkins_https.key"
+    sudo: true
+
+  - name: set jenkins configuration
+    action: command /usr/bin/defaults write /Library/Preferences/org.jenkins-ci.plist {{ item }}
+    with_items:
+     - httpPort -1
+     - httpsPort {{ jenkins_host_port }}
+     - httpsCertificate "{{ jenkins_home }}/jenkins_https.crt"
+     - httpsPrivateKey "{{ jenkins_home }}/jenkins_https.key"
+    sudo: true
+
+  - name: copy modified jenkins-runner.sh to server for ssl support
+    action: copy src=jenkins-runner.sh dest="/Library/Application Support/Jenkins/jenkins-runner.sh" owner=root group=wheel mode=0755
+    sudo: true

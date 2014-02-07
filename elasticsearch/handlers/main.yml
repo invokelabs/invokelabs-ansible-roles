@@ -1,0 +1,2 @@
+ - name: restart elasticsearch
+   action: service name=elasticsearch state=restarted

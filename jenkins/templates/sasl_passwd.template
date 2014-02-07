@@ -1,0 +1,1 @@
+{{ jenkins_mail_relay_host }}      {{ jenkins_mail_relay_smtp_username }}:{{ jenkins_mail_relay_host_smtp_password }}

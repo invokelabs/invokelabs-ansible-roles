@@ -1,0 +1,26 @@
+
+ - name: copy diamond deb file to server
+   action: copy src=diamond_3.4.69_all.deb dest=/root/diamond_3.4.69_all.deb
+
+ - name: install diamond dependencies
+   action: apt name={{ item }} state=present
+   with_items:
+    - python-configobj
+
+ - name: install diamond
+   action: command /usr/bin/dpkg -i /root/diamond_3.4.69_all.deb
+
+ - name: install diamond config file
+   action: template src=diamond.conf dest=/etc/diamond/diamond.conf owner=root mode=0644
+
+ - name: install diamond non-default collectors config files
+   action: copy src=collectors_config/ dest=/etc/diamond/collectors/
+
+ - name: ensure diamond starts at boot
+   action: command /usr/sbin/update-rc.d diamond {{ item }}
+   with_items:
+    - defaults
+    - enable
+
+ - name: start diamond
+   action: service name=diamond state=restarted

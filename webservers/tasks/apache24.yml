@@ -1,0 +1,28 @@
+    - name: install Ondrej's apache2 repo
+      action: apt_repository repo=ppa:ondrej/apache2 state=present
+
+    - name: install apache2
+      action: apt name=apache2 state=present update_cache=yes
+
+    - name: install Chris Lea's uwsgi (includes mod_proxy_uwsgi)
+      action: apt_repository repo=ppa:chris-lea/uwsgi state=present
+
+    - name: install mod_proxy_uwsgi
+      action: apt name=libapache2-mod-proxy-uwsgi state=installed update_cache=yes
+
+    - name: install apache2-utils
+      action: apt name={{ item }} state=installed
+      with_items:
+       - python-passlib
+       - apache2-utils
+
+    - name: configure apache modules
+      action: command /usr/sbin/a2enmod {{ item }}
+      with_items:
+        - proxy
+        - proxy_uwsgi
+        - proxy_fcgi
+        - proxy_http
+
+    - name: remove default vhost
+      action: file path=/etc/apache2/sites-enabled/000-default.conf state=absent

@@ -1,0 +1,13 @@
+
+
+def options(ctx):
+    pass
+
+
+def configure(ctx):
+    print 'hi there in jenkins'
+    pass
+
+
+def jenkins(ctx):
+    pass
