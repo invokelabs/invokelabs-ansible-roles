@@ -41,22 +41,14 @@
       notify:
         - restart php5-fpm
 
-    - name: test to see if default fpm init script exists
-      action: shell test -f /etc/init.d/php5-fpm
-      ignore_errors: true
-      register: init_exists
-
     - name: ensure default fpm stops on boot
       action: command /usr/sbin/update-rc.d php5-fpm disable
-      when: init_exists|success
 
     - name: ensure that php-fpm original process pool is stopped
       action: service name=php5-fpm state=stopped
-      when: init_exists|success
 
-    - name: remove php5-fpm startup script
-      action: file path=/etc/init.d/php5-fpm state=absent
-      when: init_exists|success
+    - name: don't allow execution of php5-fpm startup script
+      action: file path=/etc/init.d/php5-fpm mode=0000
 
     - name: ensure {{ projectname }} project starts on boot
       action: command /usr/sbin/update-rc.d {{ projectname }} {{ item }}
